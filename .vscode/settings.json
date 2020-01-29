@@ -1,5 +1,5 @@
 {
     "python.linting.flake8Enabled": true,
-    "python.linting.flake8Path": "~/.virtualenvs/iris/bin/flake8",
-    "python.pythonPath": "~/.virtualenvs/iris/bin/python"
+    "python.linting.flake8Path": "~/.virtualenvs/unittest/bin/flake8",
+    "python.pythonPath": "~/.virtualenvs/unittest/bin/python"
 }

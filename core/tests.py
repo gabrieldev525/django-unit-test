@@ -14,15 +14,17 @@ from .models import Register
 class RegisterTestCase(TestCase):
 
     def setUp(self):
-        self.user = baker.make(User)
+        self.user = User.objects.create(username='user')
+        self.user.set_password('123')
+        self.user.save()
+
         self.client = Client()
-        self.client.force_login(self.user)
+        self.client.login(username=self.user.username, password=self.user.password)
 
     def test_create(self):
         data = {
             'name': 'Gabriel',
             'desc': 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'
         }
-        self.client
-        obj = self.client.post('/core/register', data)
+        obj = self.client.post(reverse('api-core:register-list'), data)
         self.assertEqual(obj.status_code, 202)
