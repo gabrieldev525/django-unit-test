@@ -4,7 +4,6 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 
 # python imports
-import json
 from random import randint
 import hashlib
 
@@ -46,7 +45,11 @@ class TestRegisterList(TestCase):
 
         # generate the data to search
         for i in range(0, 10):
-            current_data = {'name': self.faker.name(), 'desc': self.faker.text(), 'target': self.faker.name()}
+            current_data = {
+                'name': self.faker.name(),
+                'desc': self.faker.text(),
+                'target': self.faker.name()
+            }
             response = self.client.post(self.get_url(), current_data)
             data.append(current_data)
 
@@ -58,7 +61,7 @@ class TestRegisterList(TestCase):
         response = self.client.get(f'{self.get_url()}?search={name}')
         content_data = response.data
 
-        result = list(filter(lambda x : x['name'] == name, content_data))
+        result = list(filter(lambda x: x['name'] == name, content_data))
         self.assertTrue(len(result) > 0)
 
         # test with a random hash to search and not find it
