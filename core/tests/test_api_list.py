@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 # python imports
 from random import randint
+from urllib.parse import urlencode
 import hashlib
 
 # third imports
@@ -34,7 +35,7 @@ class TestRegisterList(TestCase):
         response = self.client.get(self.get_url())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_anonymous_user_access(self):
+    def test_anonymous_user(self):
         self.client.logout()
 
         response = self.client.get(self.get_url())
@@ -53,17 +54,19 @@ class TestRegisterList(TestCase):
             response = self.client.post(self.get_url(), current_data)
             data.append(current_data)
 
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
         # a random index to test
         rand_index = randint(0, len(data) - 1)
         name = data[rand_index]['name']
-        response = self.client.get(f'{self.get_url()}?search={name}')
+        query = urlencode({'search': name})
+        response = self.client.get(f'{self.get_url()}?{query}')
         content_data = response.data
 
         result = list(filter(lambda x: x['name'] == name, content_data))
         self.assertTrue(len(result) > 0)
 
+    def test_search_with_a_no_result_key(self):
+        query = urlencode({'search': hashlib.sha256().hexdigest()})
+
         # test with a random hash to search and not find it
-        response = self.client.get(f'{self.get_url()}?search={hashlib.sha256().hexdigest()}')
+        response = self.client.get(f'{self.get_url()}?{query}')
         self.assertTrue(len(response.data) == 0)
