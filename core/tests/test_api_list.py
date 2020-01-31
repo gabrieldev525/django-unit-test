@@ -42,9 +42,26 @@ class TestRegisterList(TestCase):
         response = self.client.get(self.get_url())
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_search_filter(self):
-        data = []
 
+class TestRegisterListFilter(TestCase):
+    def get_url(self):
+        return reverse('api-core:register-list')
+
+    def setUp(self):
+        self.faker = Faker()
+
+        # create user to login
+        self.user = User.objects.create(username=self.faker.first_name())
+        self.password = self.faker.password()
+        self.user.set_password(self.password)
+        self.user.is_staff = True
+        self.user.save()
+
+        # instance the test client
+        self.client = Client()
+        self.client.login(username=self.user.username, password=self.password)
+
+        self.data = []
         # generate the data to search
         for i in range(0, 10):
             current_data = {
@@ -52,12 +69,13 @@ class TestRegisterList(TestCase):
                 'desc': self.faker.text(),
                 'target': self.faker.name()
             }
-            response = self.client.post(self.get_url(), current_data)
-            data.append(current_data)
+            self.client.post(self.get_url(), current_data)
+            self.data.append(current_data)
 
+    def test_search_filter(self):
         # a random index to test
-        rand_index = randint(0, len(data) - 1)
-        name = data[rand_index]['name']
+        rand_index = randint(0, len(self.data) - 1)
+        name = self.data[rand_index]['name']
         query = urlencode({'search': name})
         response = self.client.get(f'{self.get_url()}?{query}')
         content_data = response.data
@@ -66,15 +84,6 @@ class TestRegisterList(TestCase):
         self.assertTrue(len(result) > 0)
 
     def test_search_with_a_no_result_key(self):
-        # generate the data to search
-        for i in range(0, 10):
-            current_data = {
-                'name': self.faker.name(),
-                'desc': self.faker.text(),
-                'target': self.faker.name()
-            }
-            response = self.client.post(self.get_url(), current_data)
-
         query = urlencode({'search': hashlib.sha256().hexdigest()})
 
         # test with a random hash to search and not find it
