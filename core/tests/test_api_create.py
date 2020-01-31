@@ -1,31 +1,18 @@
 # django imports
-from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth.models import User
 
 # third imports
 from rest_framework import status
-from faker import Faker
+from .utils import TestUtils
 
 
-class TestRegisterCreate(TestCase):
+class TestRegisterCreate(TestUtils):
 
     def get_url(self):
         return reverse('api-core:register-list')
 
     def setUp(self):
-        self.faker = Faker()
-
-        # create user to login
-        self.user = User.objects.create(username=self.faker.first_name())
-        self.password = self.faker.password()
-        self.user.set_password(self.password)
-        self.user.is_staff = True
-        self.user.save()
-
-        # instance the test client
-        self.client = Client()
-        self.client.login(username=self.user.username, password=self.password)
+        super().setUp()
 
         self.data = {
             'name': self.faker.name(),
@@ -34,6 +21,10 @@ class TestRegisterCreate(TestCase):
         }
 
     def test_create_register(self):
+        response = self.client.post(self.get_url(), self.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_register_return(self):
         response = self.client.post(self.get_url(), self.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
