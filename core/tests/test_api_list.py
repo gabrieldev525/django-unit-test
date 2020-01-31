@@ -25,6 +25,7 @@ class TestRegisterList(TestCase):
         self.user = User.objects.create(username=self.faker.first_name())
         self.password = self.faker.password()
         self.user.set_password(self.password)
+        self.user.is_staff = True
         self.user.save()
 
         # instance the test client
@@ -65,6 +66,15 @@ class TestRegisterList(TestCase):
         self.assertTrue(len(result) > 0)
 
     def test_search_with_a_no_result_key(self):
+        # generate the data to search
+        for i in range(0, 10):
+            current_data = {
+                'name': self.faker.name(),
+                'desc': self.faker.text(),
+                'target': self.faker.name()
+            }
+            response = self.client.post(self.get_url(), current_data)
+
         query = urlencode({'search': hashlib.sha256().hexdigest()})
 
         # test with a random hash to search and not find it

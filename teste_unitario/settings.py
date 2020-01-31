@@ -38,11 +38,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     # third apps
     'rest_framework',
     'django_filters',
     'django_extensions',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 
     # local apps
     'core'
@@ -107,6 +111,19 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# https://docs.djangoproject.com/en/1.11/ref/settings/#site-id
+# https://django-allauth.readthedocs.io/en/latest/installation.html#django
+SITE_ID = 1
+
+# https://docs.djangoproject.com/en/1.11/ref/settings/#authentication-backends
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 
 # ### DJANGO REST FRAMEWORK ###

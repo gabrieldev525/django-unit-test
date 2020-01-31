@@ -20,6 +20,7 @@ class TestRegisterCreate(TestCase):
         self.user = User.objects.create(username=self.faker.first_name())
         self.password = self.faker.password()
         self.user.set_password(self.password)
+        self.user.is_staff = True
         self.user.save()
 
         # instance the test client
@@ -32,7 +33,7 @@ class TestRegisterCreate(TestCase):
             'target': '192.168.0.1, 192.168.0.2, 192.168.0.3'
         }
 
-    def test_create(self):
+    def test_create_register(self):
         response = self.client.post(self.get_url(), self.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -45,3 +46,16 @@ class TestRegisterCreate(TestCase):
         self.data.pop('target')
         response = self.client.post(self.get_url(), self.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_register_with_anonymous_user(self):
+        self.client.logout()
+        response = self.client.post(self.get_url(), self.data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_register_with_a_unauthorized_user(self):
+        self.user.is_staff = False
+        self.user.save()
+        self.client.login(username=self.user.username, password=self.password)
+
+        response = self.client.post(self.get_url(), self.data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
